@@ -58,8 +58,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
   List<RSSItem>? rssItems;
 
   @override
@@ -82,17 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
     } on InvalidRSSException catch (e) {
       debugPrint("Invalid RSS: ${e.message}");
     }
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
   }
 
   @override
@@ -121,11 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // in the middle of the parent.
         child: ListView(children: rssCards),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

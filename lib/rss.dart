@@ -90,24 +90,9 @@ class RSSProcessor {
   }
 }
 
-const _MONTHS = {
-  'Jan': '01',
-  'Feb': '02',
-  'Mar': '03',
-  'Apr': '04',
-  'May': '05',
-  'Jun': '06',
-  'Jul': '07',
-  'Aug': '08',
-  'Sep': '09',
-  'Oct': '10',
-  'Nov': '11',
-  'Dec': '12',
-};
-
 // from https://stackoverflow.com/questions/62289404/parse-rfc-822-date-and-make-timezones-work
 DateTime? parseRfc822(String input) {
-  const _MONTHS = {
+  const months = {
     'Jan': '01',
     'Feb': '02',
     'Mar': '03',
@@ -128,7 +113,7 @@ DateTime? parseRfc822(String input) {
 
   final splitYear = splits[3];
 
-  final splitMonth = _MONTHS[splits[2]];
+  final splitMonth = months[splits[2]];
   if (splitMonth == null) return null;
 
   var splitDay = splits[1];
