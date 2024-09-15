@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sugoi_rss_viewer/rss.dart';
 import 'package:sugoi_rss_viewer/rss_types.dart';
 import 'package:sugoi_rss_viewer/rss_view.dart';
+import 'package:sugoi_rss_viewer/settings.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,6 +61,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<RSSItem>? rssItems;
 
+  bool refreshing = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,17 +72,42 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void fetchRSSItems() async {
     try {
-      final fetcher = RSSFetcher();
-      final docs = await fetcher
-          .fetch(Uri.parse('https://www.nasa.gov/news-release/feed/'));
-      final processor = RSSProcessor(document: docs);
       setState(() {
-        rssItems = processor.getItems();
+        refreshing = true;
       });
-      debugPrint("RSS items set: ${rssItems!.length} items");
-    } on InvalidRSSException catch (e) {
-      debugPrint("Invalid RSS: ${e.message}");
+      await _doFetchRSSItems();
+    } finally {
+      setState(() {
+        refreshing = false;
+      });
     }
+  }
+
+  Future<void> _doFetchRSSItems() async {
+    final rssConfig = await getRssSettings();
+
+    List<RSSItem> newRssItems = [];
+
+    for (final feed in rssConfig.feeds) {
+      try {
+        final fetcher = RSSFetcher();
+        final docs = await fetcher.fetch(Uri.parse(feed.url));
+        final processor = RSSProcessor(document: docs);
+        final items = processor.getItems();
+        newRssItems.addAll(items);
+        debugPrint("Fetched ${items.length} items from ${feed.url}");
+      } on InvalidRSSException catch (e) {
+        debugPrint("Invalid RSS: ${e.message}");
+      }
+    }
+
+    // sort rss items by pubDate
+    newRssItems.sort((a, b) =>
+        pubDateAsNumber(b.pubDate).compareTo(pubDateAsNumber(a.pubDate)));
+
+    setState(() {
+      rssItems = newRssItems;
+    });
   }
 
   @override
@@ -87,28 +115,59 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> rssCards =
         rssItems == null ? [] : rssItems!.map((e) => RSSCard(item: e)).toList();
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            // disable the button while refreshing
+            onPressed: refreshing ? null : fetchRSSItems,
+          ),
+        ],
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: ListView(children: rssCards),
+          child: Column(children: [
+        ...(refreshing ? [const LinearProgressIndicator(value: null)] : []),
+        Expanded(
+          child: ListView(children: rssCards),
+        )
+      ])),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Sugoi RSS Viewer',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const SettingsWidget();
+                  }));
+                }),
+          ],
+        ),
       ),
-      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+int pubDateAsNumber(DateTime? pubDate) {
+  if (pubDate == null) {
+    return 0;
+  }
+  return pubDate.millisecondsSinceEpoch;
 }
