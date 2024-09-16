@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sugoi_rss_viewer/settings_types.dart';
 
 class SettingsWidget extends StatelessWidget {
@@ -36,6 +35,8 @@ class RSSFeedSettings extends StatefulWidget {
 class _RSSFeedSettingsState extends State<RSSFeedSettings> {
   final List<String> _rssFeeds = [];
 
+  final TextEditingController _rssRetentionDaysController =
+      TextEditingController();
   final TextEditingController _rssFeedController = TextEditingController();
 
   void addRssFeed(String newUrl) async {
@@ -47,6 +48,13 @@ class _RSSFeedSettingsState extends State<RSSFeedSettings> {
     setState(() {
       _rssFeeds.add(newUrl);
     });
+  }
+
+  void _modifyRetentionDays(int days) async {
+    final settings = await getRssSettings();
+
+    settings.rssRetentionDays = days;
+    await saveRssSettings(settings);
   }
 
   void removeRssFeedAt(int index) async {
@@ -67,14 +75,16 @@ class _RSSFeedSettingsState extends State<RSSFeedSettings> {
   }
 
   Future<void> saveRssSettings(RSSSettings settings) async {
-    final instance = await SharedPreferences.getInstance();
-    instance.setString("rssSettings", jsonEncode(settings.toJson()));
+    final box = await Hive.openBox("settings");
+    box.put("rssFeedEntries", settings.feeds);
+    box.put("rssRetentionDays", settings.rssRetentionDays);
   }
 
   void initRssFeeds() async {
     final settings = await getRssSettings();
     setState(() {
       _rssFeeds.addAll(settings.feeds.map((e) => e.url));
+      _rssRetentionDaysController.text = settings.rssRetentionDays.toString();
     });
   }
 
@@ -92,7 +102,20 @@ class _RSSFeedSettingsState extends State<RSSFeedSettings> {
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text("RSS Feed settings",
+      const Text("RSS retention duration (in days)",
+          style: TextStyle(fontWeight: FontWeight.bold)),
+      TextField(
+          controller: _rssRetentionDaysController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onChanged: (newDays) {
+            final parsed = int.parse(newDays);
+            if (parsed < 0) {
+              return;
+            }
+            _modifyRetentionDays(parsed);
+          }),
+      const Text("RSS feed URLs",
           style: TextStyle(fontWeight: FontWeight.bold)),
       Container(
           margin: const EdgeInsets.only(left: 4),
@@ -139,13 +162,14 @@ class RSSFeedSettingsEntry extends StatelessWidget {
 }
 
 Future<RSSSettings> getRssSettings() async {
-  final instance = await SharedPreferences.getInstance();
-  final feedsJson = instance.getString("rssSettings");
+  final box = await Hive.openBox("settings");
+  final defaults = makeDefaultRSSSettings();
 
-  if (feedsJson != null) {
-    final feeds = RSSSettings.fromJson(jsonDecode(feedsJson));
-    return feeds;
-  }
+  final feeds = box.get("rssFeedEntries", defaultValue: defaults.feeds)
+      as List<RSSFeedEntry>;
 
-  return RSSSettings(feeds: []); // initial value
+  final rssRetentionDays = box.get("rssRetentionDays",
+      defaultValue: defaults.rssRetentionDays) as int;
+
+  return RSSSettings(feeds: feeds, rssRetentionDays: rssRetentionDays);
 }

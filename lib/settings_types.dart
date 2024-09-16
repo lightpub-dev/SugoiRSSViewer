@@ -12,6 +12,7 @@ part 'settings_types.g.dart';
 class RSSSettings with _$RSSSettings {
   factory RSSSettings({
     required List<RSSFeedEntry> feeds,
+    required int rssRetentionDays,
   }) = _RSSSettings;
 
   factory RSSSettings.fromJson(Map<String, Object?> json) =>
@@ -26,4 +27,8 @@ class RSSFeedEntry with _$RSSFeedEntry {
 
   factory RSSFeedEntry.fromJson(Map<String, Object?> json) =>
       _$RSSFeedEntryFromJson(json);
+}
+
+RSSSettings makeDefaultRSSSettings() {
+  return RSSSettings(rssRetentionDays: 7, feeds: []); // initial value
 }

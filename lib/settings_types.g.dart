@@ -11,11 +11,13 @@ _$RSSSettingsImpl _$$RSSSettingsImplFromJson(Map<String, dynamic> json) =>
       feeds: (json['feeds'] as List<dynamic>)
           .map((e) => RSSFeedEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
+      rssRetentionDays: (json['rssRetentionDays'] as num).toInt(),
     );
 
 Map<String, dynamic> _$$RSSSettingsImplToJson(_$RSSSettingsImpl instance) =>
     <String, dynamic>{
       'feeds': instance.feeds,
+      'rssRetentionDays': instance.rssRetentionDays,
     };
 
 _$RSSFeedEntryImpl _$$RSSFeedEntryImplFromJson(Map<String, dynamic> json) =>

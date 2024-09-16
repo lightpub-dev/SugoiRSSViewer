@@ -22,6 +22,8 @@ RSSSettings _$RSSSettingsFromJson(Map<String, dynamic> json) {
 mixin _$RSSSettings {
   List<RSSFeedEntry> get feeds => throw _privateConstructorUsedError;
   set feeds(List<RSSFeedEntry> value) => throw _privateConstructorUsedError;
+  int get rssRetentionDays => throw _privateConstructorUsedError;
+  set rssRetentionDays(int value) => throw _privateConstructorUsedError;
 
   /// Serializes this RSSSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +41,7 @@ abstract class $RSSSettingsCopyWith<$Res> {
           RSSSettings value, $Res Function(RSSSettings) then) =
       _$RSSSettingsCopyWithImpl<$Res, RSSSettings>;
   @useResult
-  $Res call({List<RSSFeedEntry> feeds});
+  $Res call({List<RSSFeedEntry> feeds, int rssRetentionDays});
 }
 
 /// @nodoc
@@ -58,12 +60,17 @@ class _$RSSSettingsCopyWithImpl<$Res, $Val extends RSSSettings>
   @override
   $Res call({
     Object? feeds = null,
+    Object? rssRetentionDays = null,
   }) {
     return _then(_value.copyWith(
       feeds: null == feeds
           ? _value.feeds
           : feeds // ignore: cast_nullable_to_non_nullable
               as List<RSSFeedEntry>,
+      rssRetentionDays: null == rssRetentionDays
+          ? _value.rssRetentionDays
+          : rssRetentionDays // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -76,7 +83,7 @@ abstract class _$$RSSSettingsImplCopyWith<$Res>
       __$$RSSSettingsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<RSSFeedEntry> feeds});
+  $Res call({List<RSSFeedEntry> feeds, int rssRetentionDays});
 }
 
 /// @nodoc
@@ -93,12 +100,17 @@ class __$$RSSSettingsImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? feeds = null,
+    Object? rssRetentionDays = null,
   }) {
     return _then(_$RSSSettingsImpl(
       feeds: null == feeds
           ? _value.feeds
           : feeds // ignore: cast_nullable_to_non_nullable
               as List<RSSFeedEntry>,
+      rssRetentionDays: null == rssRetentionDays
+          ? _value.rssRetentionDays
+          : rssRetentionDays // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -106,17 +118,19 @@ class __$$RSSSettingsImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$RSSSettingsImpl with DiagnosticableTreeMixin implements _RSSSettings {
-  _$RSSSettingsImpl({required this.feeds});
+  _$RSSSettingsImpl({required this.feeds, required this.rssRetentionDays});
 
   factory _$RSSSettingsImpl.fromJson(Map<String, dynamic> json) =>
       _$$RSSSettingsImplFromJson(json);
 
   @override
   List<RSSFeedEntry> feeds;
+  @override
+  int rssRetentionDays;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'RSSSettings(feeds: $feeds)';
+    return 'RSSSettings(feeds: $feeds, rssRetentionDays: $rssRetentionDays)';
   }
 
   @override
@@ -124,7 +138,8 @@ class _$RSSSettingsImpl with DiagnosticableTreeMixin implements _RSSSettings {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'RSSSettings'))
-      ..add(DiagnosticsProperty('feeds', feeds));
+      ..add(DiagnosticsProperty('feeds', feeds))
+      ..add(DiagnosticsProperty('rssRetentionDays', rssRetentionDays));
   }
 
   /// Create a copy of RSSSettings
@@ -144,7 +159,9 @@ class _$RSSSettingsImpl with DiagnosticableTreeMixin implements _RSSSettings {
 }
 
 abstract class _RSSSettings implements RSSSettings {
-  factory _RSSSettings({required List<RSSFeedEntry> feeds}) = _$RSSSettingsImpl;
+  factory _RSSSettings(
+      {required List<RSSFeedEntry> feeds,
+      required int rssRetentionDays}) = _$RSSSettingsImpl;
 
   factory _RSSSettings.fromJson(Map<String, dynamic> json) =
       _$RSSSettingsImpl.fromJson;
@@ -152,6 +169,9 @@ abstract class _RSSSettings implements RSSSettings {
   @override
   List<RSSFeedEntry> get feeds;
   set feeds(List<RSSFeedEntry> value);
+  @override
+  int get rssRetentionDays;
+  set rssRetentionDays(int value);
 
   /// Create a copy of RSSSettings
   /// with the given fields replaced by the non-null parameter values.

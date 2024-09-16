@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sugoi_rss_viewer/rss.dart';
 import 'package:sugoi_rss_viewer/rss_types.dart';
 import 'package:sugoi_rss_viewer/rss_view.dart';
 import 'package:sugoi_rss_viewer/settings.dart';
+import 'package:sugoi_rss_viewer/type_adapters.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(RSSFeedEntryAdapter());
+
   runApp(const MyApp());
 }
 
